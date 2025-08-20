@@ -8,10 +8,27 @@ CORS(app) # Enable CORS for all routes on the app
 @app.route("/", methods=["GET"])
 def index():
     """
-    Renders the main HTML template for the web interface.
-    This route serves the internal client's HTML.
+    Handles POST requests to the API endpoint and returns a JSON message.
+    This endpoint now allows cross-origin requests due to CORS(app) above.
     """
-    return render_template("index.html")
+    if request.is_json:
+        data_received = request.get_json()
+        print(f"Received data from frontend: {data_received}")
+
+        response_message = "Data successfully processed!"
+        if data_received and "name" in data_received:
+            response_message = f"Hello, {data_received['name']}! Your data was processed."
+
+        return jsonify({
+            "status": "success",
+            "message": response_message,
+            "received_payload": data_received
+        }), 200
+    else:
+        return jsonify({
+            "status": "error",
+            "message": "Request must be JSON"
+        }), 400
 
 # API endpoint to handle POST requests
 @app.route("/api/submit_data", methods=["POST"])
