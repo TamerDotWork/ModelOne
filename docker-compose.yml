@@ -2,7 +2,7 @@ services:
   # Define a service named 'flask-app'
   flask-app:
     # Build the Docker image from the current directory (where Dockerfile implicitly exists)
-    build: .
+    build: ./docker
     # Map port 5000 on your host machine to port 5000 inside the container.
     # This allows you to access the Flask app from your browser via http://localhost:5000.
     ports:
