@@ -1,7 +1,7 @@
 from flask import Flask, request, jsonify, render_template
 from flask_cors import CORS
 
-app = Flask(__name__, static_url_path='/ModelOne')
+app = Flask(__name__, static_url_path='/ModelOne/static', template_folder='templates')
 
 CORS(app)  # Allow cross-origin requests if needed (optional)
 
