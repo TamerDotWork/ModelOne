@@ -1,13 +1,33 @@
-from flask import Flask, jsonify, request
+from flask import Flask, request, jsonify
+from flask_cors import CORS
 
 app = Flask(__name__)
+CORS(app)  # Allow cross-origin requests if needed (optional)
 
-@app.route("/", methods=["GET", "POST"])
+@app.route("/")
 def home():
-    if request.method == "POST":
-        return "This is POST request"
-    return "Hello from Flask!"
+    return "Flask app is running!"
 
+@app.route("/api/submit_data", methods=["POST"])
+def submit_data():
+    try:
+        data = request.get_json()
+        name = data.get("name")
+        value = data.get("value")
+        details = data.get("details")
+        
+        # Example processing
+        response_message = f"Received data from {name} with value {value}."
+        return jsonify({
+            "status": "success",
+            "message": response_message,
+            "received_data": data
+        })
+    except Exception as e:
+        return jsonify({
+            "status": "error",
+            "message": str(e)
+        }), 400
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000)
