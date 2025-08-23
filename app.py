@@ -9,7 +9,7 @@ CORS(app)  # Allow cross-origin requests if needed (optional)
 def home():
     return render_template("index.html")  # Flask serves your HTML
 
-@app.route("/ModelOne/api/submit_data", methods=["POST"])
+@app.route("/api/submit_data", methods=["POST"])
 def submit_data():
     try:
         data = request.get_json()
