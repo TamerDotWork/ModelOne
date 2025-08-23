@@ -1,9 +1,8 @@
-version: "3.8"
 
 services:
   flaskapp:
     build: .
-    container_name: flaskapp
+    container_name: ModelOne
     restart: always
     ports:
       - "5000:5000"
