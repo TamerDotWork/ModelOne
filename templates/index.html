@@ -1,138 +1,41 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Flask & AJAX Interaction</title>
-    <!-- Include Tailwind CSS from CDN for styling -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-        /* Import Inter font from Google Fonts for a modern look */
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
-        body {
-            font-family: 'Inter', sans-serif;
-            /* Flexbox for centering content */
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            min-height: 100vh; /* Full viewport height */
-            background-color: #f8fafc; /* Light blue-gray background */
-            color: #334155; /* Dark text color */
-            padding: 1rem; /* Padding around the content */
-            box-sizing: border-box; /* Include padding in element's total width and height */
-        }
-        /* Style for the message box that appears after API call */
-        .message-box {
-            min-height: 80px; /* Ensure it has some height even when empty */
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-    </style>
+    <title>Flask AJAX Example</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 </head>
-<body class="antialiased">
+<body>
+    <h1>Flask AJAX Example</h1>
+    <button id="sendBtn">Send POST</button>
 
-    <div class="max-w-xl w-full bg-white p-8 rounded-xl shadow-lg border border-gray-200 text-center">
-        <h1 class="text-4xl font-extrabold text-gray-900 mb-6">Interactive Flask API Demo</h1>
-        <p class="text-lg text-gray-700 mb-8">
-            Click the button below to send a POST request to the Flask backend
-            and see the response.
-        </p>
-
-        <button id="sendPostButton"
-                class="px-8 py-4 bg-indigo-600 text-white font-bold text-lg rounded-full shadow-lg
-                       hover:bg-indigo-700 focus:outline-none focus:ring-4 focus:ring-indigo-300
-                       transition duration-300 ease-in-out transform hover:scale-105">
-            Send Data to Flask API
-        </button>
-
-        <div id="responseDisplay"
-             class="mt-8 p-6 message-box bg-gray-50 rounded-lg border border-gray-300
-                    text-gray-800 text-md overflow-auto break-words whitespace-pre-wrap">
-            <p class="text-gray-500">Response will appear here...</p>
-        </div>
-    </div>
+    <h2>Response:</h2>
+    <pre id="response"></pre>
 
     <script>
-        // Get references to HTML elements
-        const sendPostButton = document.getElementById("sendPostButton");
-        const responseDisplay = document.getElementById("responseDisplay");
-
-        // Add an event listener to the button
-        sendPostButton.addEventListener("click", function() {
-            // Display a loading message
-            responseDisplay.innerHTML = '<p class="text-blue-500 animate-pulse">Sending request...</p>';
-
-            // Create a new XMLHttpRequest object
-            const xhr = new XMLHttpRequest();
-
-            // Define the data to send. This will be converted to JSON.
-            // In a real application, this could come from form inputs.
-            const dataToSend = {
-                name: "User Example",
-                value: 123,
-                details: "This is some example data from the frontend."
-            };
-
-            // Configure the request:
-            // - Method: POST
-            // - URL: The API endpoint on your Flask server
-            // - Asynchronous: true (the request won't block the browser)
-            xhr.open("POST", "/api/submit_data", true);
-
-            // Set the Content-Type header to tell the server we are sending JSON
-            xhr.setRequestHeader("Content-Type", "application/json");
-
-            // Define what happens when the request completes successfully (status 2xx)
-            xhr.onload = function() {
-                if (xhr.status >= 200 && xhr.status < 300) {
-                    try {
-                        // Parse the JSON response from the server
-                        const response = JSON.parse(xhr.responseText);
-                        console.log("Response from Flask:", response);
-
-                        // Update the display with the success message
-                        responseDisplay.innerHTML = `
-                            <div class="text-green-700 font-semibold">Success!</div>
-                            <p class="mt-2 text-gray-800">${response.message}</p>
-                            <pre class="mt-4 text-left bg-gray-100 p-3 rounded-md text-sm overflow-x-auto">
-                                ${JSON.stringify(response, null, 2)}
-                            </pre>
-                        `;
-                    } catch (e) {
-                        // Handle cases where the response is not valid JSON
-                        responseDisplay.innerHTML = `
-                            <div class="text-yellow-700 font-semibold">Received non-JSON response!</div>
-                            <p class="mt-2 text-gray-800">Raw response: ${xhr.responseText}</p>
-                            <p class="mt-1 text-red-600">Error parsing JSON: ${e.message}</p>
-                        `;
-                        console.error("Error parsing JSON response:", e);
-                    }
-                } else {
-                    // Handle HTTP errors (e.g., 404 Not Found, 500 Internal Server Error)
-                    responseDisplay.innerHTML = `
-                        <div class="text-red-700 font-semibold">Error!</div>
-                        <p class="mt-2 text-gray-800">Status: ${xhr.status} ${xhr.statusText}</p>
-                        <p class="mt-1 text-gray-800">Details: ${xhr.responseText || 'No response details.'}</p>
-                    `;
-                    console.error("HTTP Error:", xhr.status, xhr.statusText, xhr.responseText);
+        $('#sendBtn').click(function() {
+            $.ajax({
+                url: '/api',
+                type: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify({ message: 'Hello from AJAX!' }),
+                success: function(response) {
+                    $('#response').text(JSON.stringify(response, null, 2));
+                },
+                error: function(err) {
+                    $('#response').text('Error: ' + err.statusText);
                 }
-            };
-
-            // Define what happens if there's a network error (e.g., server down, no internet)
-            xhr.onerror = function() {
-                responseDisplay.innerHTML = `
-                    <div class="text-red-700 font-semibold">Network Error!</div>
-                    <p class="mt-2 text-gray-800">Could not reach the Flask server. Please ensure it is running.</p>
-                `;
-                console.error("Network Error: Could not connect to the server.");
-            };
-
-            // Send the request with the JSON data (converted to a string)
-            xhr.send(JSON.stringify(dataToSend));
+            });
         });
-    </script>
 
+        // Optional: Fetch logs automatically
+        function fetchLogs() {
+            $.get('/api', function(data) {
+                $('#response').text(JSON.stringify(data, null, 2));
+            });
+        }
+
+        // Uncomment to fetch logs on page load
+        // fetchLogs();
+    </script>
 </body>
 </html>

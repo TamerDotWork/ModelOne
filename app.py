@@ -1,34 +1,24 @@
 from flask import Flask, request, jsonify, render_template
-from flask_cors import CORS
 
-app = Flask(__name__, static_url_path='/ModelOne/static', template_folder='templates')
+app = Flask(__name__)
 
-CORS(app)  # Allow cross-origin requests if needed (optional)
+# Store logs in memory for demonstration
+logs = []
 
-@app.route("/")
-def home():
-    return render_template("index.html")  # Flask serves your HTML
+@app.route('/')
+def index():
+    return render_template('index.html')
 
-@app.route("/ModelOne/api/submit_data", methods=["POST"])
-def submit_data():
-    try:
-        data = request.get_json()
-        name = data.get("name")
-        value = data.get("value")
-        details = data.get("details")
-        
-        # Example processing
-        response_message = f"Received data from {name} with value {value}."
-        return jsonify({
-            "status": "success",
-            "message": response_message,
-            "received_data": data
-        })
-    except Exception as e:
-        return jsonify({
-            "status": "error",
-            "message": str(e)
-        }), 400
+@app.route('/api', methods=['GET', 'POST'])
+def api():
+    if request.method == 'POST':
+        data = request.json  # expecting JSON payload
+        logs.append(data)
+        print(f"Received POST data: {data}")  # log to console
+        return jsonify({"status": "success", "data_received": data})
+    
+    # GET request: return logs
+    return jsonify({"status": "success", "logs": logs})
 
-if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5001)
+if __name__ == '__main__':
+    app.run(debug=True)
